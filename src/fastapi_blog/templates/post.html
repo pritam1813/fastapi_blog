@@ -31,16 +31,28 @@
             <!-- Author & Metadata Row -->
             <div class="flex items-center justify-between gap-4 flex-wrap text-sm">
                 <div class="flex items-center gap-3">
-                    <img src="{{ url_for('static', path='icons/writer.svg') }}" alt="{{ post.author }}" 
-                         class="size-10 rounded-full flex items-center justify-center border border-navy-900/10 dark:border-navy-700" width="40" height="40">
+                    <img src="{{ post.author.image_path if post.author and post.author.image_path else url_for('static', path='icons/writer.svg') }}" alt="{{ post.author.username if post.author else 'Author' }}" 
+                         class="size-10 rounded-full flex items-center justify-center border border-navy-900/10 dark:border-navy-700 object-cover" width="40" height="40">
                     <div>
-                        <div class="font-bold text-navy-950 dark:text-cream-100">{{ post.author }}</div>
+                        {% if post.author %}
+                        <a href="{{ url_for('user_posts', user_id=post.author.id) }}" class="font-bold text-navy-950 dark:text-cream-100 hover:underline block leading-tight">
+                            {{ post.author.username }}
+                        </a>
+                        {% else %}
+                        <span class="font-bold text-navy-950 dark:text-cream-100 block leading-tight">Anonymous</span>
+                        {% endif %}
                         <div class="text-xs text-navy-700/70 dark:text-cream-100/60">Software Engineer &amp; Contributor</div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-4 flex-wrap">
                     <div class="flex items-center gap-3 text-xs text-navy-700/60 dark:text-cream-100/50 font-mono">
+                        {% if post.date_posted %}
+                        <time>
+                            {{ post.date_posted.strftime('%B %d, %Y · %I:%M %p') if post.date_posted.strftime is defined else post.date_posted }}
+                        </time>
+                        <span>&bull;</span>
+                        {% endif %}
                         <span>3 min read</span>
                         <span>&bull;</span>
                         <span>{{ "Published" if post.published else "Draft" }}</span>

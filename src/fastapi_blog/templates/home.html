@@ -21,13 +21,23 @@
             {% for post in posts %}
             <article class="p-6 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 transition-all hover:-translate-y-0.5 hover:border-navy-700/40 dark:hover:border-cream-100/30 shadow-xs hover:shadow-md">
                 <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                    <div class="flex items-center gap-2.5 text-sm font-medium text-navy-900 dark:text-cream-100">
-                        {# <span class="w-6 h-6 rounded-full bg-navy-900/10 dark:bg-navy-700 border border-navy-900/15 dark:border-navy-700 flex items-center justify-center text-xs font-bold font-mono text-navy-950 dark:text-cream-100">
-                            {{ post.author[0] if post.author else 'A' }}
-                        </span> #}
-                        <img src="{{ url_for('static', path='icons/writer.svg') }}" alt="Author" 
-                        class="size-10 rounded-full flex items-center justify-center" width="64" height="64">
-                        <span>{{ post.author }}</span>
+                    <div class="flex items-center gap-3 text-sm font-medium text-navy-900 dark:text-cream-100">
+                        <img src="{{ post.author.image_path if post.author and post.author.image_path else url_for('static', path='icons/writer.svg') }}" alt="{{ post.author.username if post.author else 'Author' }}" 
+                             class="size-10 rounded-full flex items-center justify-center border border-navy-900/10 dark:border-navy-700 object-cover" width="40" height="40">
+                        <div>
+                            {% if post.author %}
+                            <a href="{{ url_for('user_posts', user_id=post.author.id) }}" class="font-bold text-navy-950 dark:text-cream-100 hover:underline block leading-tight">
+                                {{ post.author.username }}
+                            </a>
+                            {% else %}
+                            <span class="font-bold text-navy-950 dark:text-cream-100 block leading-tight">Anonymous</span>
+                            {% endif %}
+                            {% if post.date_posted %}
+                            <time class="text-xs text-navy-700/60 dark:text-cream-100/50 font-mono block mt-0.5">
+                                {{ post.date_posted.strftime('%b %d, %Y · %I:%M %p') if post.date_posted.strftime is defined else post.date_posted }}
+                            </time>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <span class="text-xs font-mono text-navy-700/60 dark:text-cream-100/50">#post-{{ post.id }}</span>
