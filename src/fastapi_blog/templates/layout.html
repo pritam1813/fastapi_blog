@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% if title %}
+        FastAPI Blog - {{title}}
+        {% else %}
+        FastAPI Blog
+        {% endif %}
+    </title>
+    <link rel="shortcut icon" href="{{ url_for('static', path='icons/blogger.svg') }}" type="image/x-icon">
+    <!-- Prevent FOUC: apply dark mode immediately before render -->
+    
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+
+        @theme {
+            --color-navy-950: #010736;
+            --color-navy-900: #0d1c42;
+            --color-navy-700: #22396f;
+            --color-cream-100: #fcf1d0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#faf6ed] text-navy-950 dark:bg-navy-950 dark:text-cream-100 antialiased transition-colors duration-200">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white/95 dark:bg-navy-900/95 border-b border-navy-900/10 dark:border-navy-700">
+        <nav class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-8">
+                <a href="/" class="flex items-center gap-2.5 font-bold text-lg tracking-tight text-navy-950 dark:text-cream-100">
+                    <span class="w-7 h-7 rounded-md bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 flex items-center justify-center text-xs font-black font-mono">⚡</span>
+                    <span>FastAPI Blog</span>
+                </a>
+                <ul class="hidden md:flex items-center gap-6 text-sm font-medium">
+                    <li><a href="/" class="text-navy-950 dark:text-cream-100 font-semibold">Home</a></li>
+                    <li><a href="#articles" class="text-navy-700 hover:text-navy-950 dark:text-cream-100/70 dark:hover:text-cream-100 transition-colors">Articles</a></li>
+                    <li><a href="#about" class="text-navy-700 hover:text-navy-950 dark:text-cream-100/70 dark:hover:text-cream-100 transition-colors">About</a></li>
+                </ul>
+            </div>
+            <div class="flex items-center gap-2.5">
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle dark mode"
+                        class="w-9 h-9 inline-flex items-center justify-center rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                    <!-- Moon icon (visible in light mode) -->
+                    <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <!-- Sun icon (visible in dark mode) -->
+                    <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <a href="#login" class="px-3.5 py-1.5 text-sm font-semibold rounded-md text-navy-900 hover:bg-navy-900/5 dark:text-cream-100 dark:hover:bg-navy-700/50 transition-colors">Log in</a>
+                <a href="#register" class="px-3.5 py-1.5 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-10 md:py-12">
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto bg-white dark:bg-navy-900 border-t border-navy-900/10 dark:border-navy-700 py-8 px-4 sm:px-6">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-navy-700/70 dark:text-cream-100/60">
+            <div>&copy; 2026 FastAPI Blog. Built with FastAPI &amp; Jinja2.</div>
+            <ul class="flex items-center gap-6">
+                <li><a href="#privacy" class="hover:text-navy-950 dark:hover:text-cream-100 transition-colors">Privacy</a></li>
+                <li><a href="#terms" class="hover:text-navy-950 dark:hover:text-cream-100 transition-colors">Terms</a></li>
+                <li><a href="https://fastapi.tiangolo.com/" target="_blank" rel="noopener noreferrer" class="hover:text-navy-950 dark:hover:text-cream-100 transition-colors">FastAPI Docs</a></li>
+                <li><a href="#rss" class="hover:text-navy-950 dark:hover:text-cream-100 transition-colors">RSS</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Theme Toggle Logic -->
+    <script src="{{ url_for('static', path='js/darkmode.js') }}"></script>
+</body>
+</html>

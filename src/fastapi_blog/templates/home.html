@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="mb-10 pb-8 border-b border-navy-900/10 dark:border-navy-700">
+    <span class="inline-block px-2.5 py-1 mb-3 text-xs font-semibold uppercase tracking-wider font-mono rounded bg-navy-900/5 text-navy-700 dark:bg-navy-700/40 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700">Developer Notes &amp; Tutorials</span>
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-navy-950 dark:text-cream-100 leading-tight mb-2.5">Writings on modern APIs, architecture &amp; Python</h1>
+    <p class="text-base sm:text-lg text-navy-700 dark:text-cream-100/75 max-w-2xl leading-relaxed">Notes, patterns, and practical guides from exploring FastAPI, async programming, and modern backend systems.</p>
+</section>
+
+<!-- Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 items-start" id="articles">
+    <!-- Articles List Column -->
+    <div>
+        <div class="flex items-center justify-between pb-4 mb-4">
+            <h2 class="text-xl font-bold tracking-tight text-navy-950 dark:text-cream-100">Latest Articles</h2>
+            <span class="text-xs font-medium text-navy-700/70 dark:text-cream-100/60">{{ posts|length }} articles</span>
+        </div>
+
+        <div class="flex flex-col gap-5">
+            {% for post in posts %}
+            <article class="p-6 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 transition-all hover:-translate-y-0.5 hover:border-navy-700/40 dark:hover:border-cream-100/30 shadow-xs hover:shadow-md">
+                <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                    <div class="flex items-center gap-2.5 text-sm font-medium text-navy-900 dark:text-cream-100">
+                        {# <span class="w-6 h-6 rounded-full bg-navy-900/10 dark:bg-navy-700 border border-navy-900/15 dark:border-navy-700 flex items-center justify-center text-xs font-bold font-mono text-navy-950 dark:text-cream-100">
+                            {{ post.author[0] if post.author else 'A' }}
+                        </span> #}
+                        <img src="{{ url_for('static', path='icons/writer.svg') }}" alt="Author" 
+                        class="size-10 rounded-full flex items-center justify-center" width="64" height="64">
+                        <span>{{ post.author }}</span>
+                    </div>
+
+                    <span class="text-xs font-mono text-navy-700/60 dark:text-cream-100/50">#post-{{ post.id }}</span>
+                </div>
+
+                <h3 class="text-xl font-bold tracking-tight text-navy-950 dark:text-cream-100 mb-2 leading-snug">
+                    <a href="#post-{{ post.id }}" class="hover:underline underline-offset-4">{{ post.title }}</a>
+                </h3>
+
+                <p class="text-sm sm:text-base text-navy-900/80 dark:text-cream-100/75 leading-relaxed mb-5">{{ post.content }}</p>
+
+                <div class="flex items-center justify-between pt-3.5 border-t border-navy-900/10 dark:border-navy-700/60 text-sm">
+                    <a href="#post-{{ post.id }}" class="group font-semibold text-navy-950 dark:text-cream-100 inline-flex items-center gap-1.5">
+                        Read article
+                        <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Sidebar Column -->
+    <aside class="flex flex-col gap-6" id="about">
+        <!-- About Box -->
+        <div class="p-5 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-3">About the Blog</h3>
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 flex items-center justify-center text-base font-bold font-mono shrink-0">
+                    ⚡
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-navy-950 dark:text-cream-100">FastAPI DevLog</h4>
+                    <p class="text-xs text-navy-700/70 dark:text-cream-100/60">Python &amp; API Engineering</p>
+                </div>
+            </div>
+            <p class="text-xs sm:text-sm text-navy-900/80 dark:text-cream-100/75 leading-relaxed">
+                A public publication sharing hands-on tutorials, API best practices, and code recipes from building with FastAPI.
+            </p>
+        </div>
+
+        <!-- Topics Box -->
+        <div class="p-5 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-3">Topics</h3>
+            <div class="flex flex-wrap gap-1.5">
+                <a href="#topics" class="text-xs font-mono px-2 py-1 rounded bg-navy-900/5 dark:bg-navy-700/50 text-navy-900 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700 hover:bg-navy-900/10 dark:hover:bg-navy-700 transition-colors">#fastapi</a>
+                <a href="#topics" class="text-xs font-mono px-2 py-1 rounded bg-navy-900/5 dark:bg-navy-700/50 text-navy-900 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700 hover:bg-navy-900/10 dark:hover:bg-navy-700 transition-colors">#python</a>
+                <a href="#topics" class="text-xs font-mono px-2 py-1 rounded bg-navy-900/5 dark:bg-navy-700/50 text-navy-900 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700 hover:bg-navy-900/10 dark:hover:bg-navy-700 transition-colors">#asyncio</a>
+                <a href="#topics" class="text-xs font-mono px-2 py-1 rounded bg-navy-900/5 dark:bg-navy-700/50 text-navy-900 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700 hover:bg-navy-900/10 dark:hover:bg-navy-700 transition-colors">#pydantic</a>
+                <a href="#topics" class="text-xs font-mono px-2 py-1 rounded bg-navy-900/5 dark:bg-navy-700/50 text-navy-900 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700 hover:bg-navy-900/10 dark:hover:bg-navy-700 transition-colors">#rest-api</a>
+                <a href="#topics" class="text-xs font-mono px-2 py-1 rounded bg-navy-900/5 dark:bg-navy-700/50 text-navy-900 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700 hover:bg-navy-900/10 dark:hover:bg-navy-700 transition-colors">#jinja2</a>
+            </div>
+        </div>
+
+        <!-- Newsletter Box -->
+        <div class="p-5 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-2">Newsletter</h3>
+            <p class="text-xs sm:text-sm text-navy-900/80 dark:text-cream-100/75 leading-relaxed mb-3">
+                Receive clean, fluff-free updates whenever new engineering guides and tutorials are published.
+            </p>
+            <form class="flex flex-col gap-2.5" onsubmit="event.preventDefault();">
+                <input type="email" placeholder="you@example.com" class="w-full px-3 py-2 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-none focus:border-navy-900 dark:focus:border-cream-100 transition-colors" required>
+                <button type="submit" class="w-full py-2 px-3 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer">Subscribe</button>
+            </form>
+        </div>
+    </aside>
+</div>
+{% endblock content %}
