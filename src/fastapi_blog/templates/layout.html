@@ -57,21 +57,9 @@
                 <button id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle dark mode"
                         class="w-9 h-9 inline-flex items-center justify-center rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
                     <!-- Moon icon (visible in light mode) -->
-                    <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
+                    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
                     <!-- Sun icon (visible in dark mode) -->
-                    <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
+                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
                 </button>
                 <a href="#login" class="px-3.5 py-1.5 text-sm font-semibold rounded-md text-navy-900 hover:bg-navy-900/5 dark:text-cream-100 dark:hover:bg-navy-700/50 transition-colors">Log in</a>
                 <a href="#register" class="px-3.5 py-1.5 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors">Register</a>
@@ -100,5 +88,10 @@
 
     <!-- Theme Toggle Logic -->
     <script src="{{ url_for('static', path='js/darkmode.js') }}"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

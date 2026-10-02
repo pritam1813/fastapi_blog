@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- Back Navigation -->
+<div class="mb-6">
+    <a href="/" class="group inline-flex items-center gap-2 text-sm font-semibold text-navy-700 hover:text-navy-950 dark:text-cream-100/70 dark:hover:text-cream-100 transition-colors">
+        <span class="transition-transform group-hover:-translate-x-1">&larr;</span>
+        Back to all articles
+    </a>
+</div>
+
+<!-- Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 items-start">
+    <!-- Main Error Column -->
+    <div class="p-6 sm:p-8 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs">
+        <!-- Error Header -->
+        <header class="pb-6 mb-8 border-b border-navy-900/10 dark:border-navy-700">
+            <div class="flex items-center justify-between gap-2.5 mb-4 flex-wrap">
+                <span class="inline-block px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider font-mono rounded bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
+                    HTTP {{ status_code or 404 }} Error
+                </span>
+                <span class="text-xs font-mono text-navy-700/60 dark:text-cream-100/50">
+                    #status-{{ status_code or 404 }}
+                </span>
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-navy-950 dark:text-cream-100 leading-tight mb-5">
+                {% if status_code == 404 %}
+                Page or Article Not Found
+                {% elif status_code == 500 %}
+                Internal Server Error
+                {% else %}
+                Unexpected Error Occurred
+                {% endif %}
+            </h1>
+
+            <!-- Metadata Row -->
+            <div class="flex items-center justify-between gap-4 flex-wrap text-sm">
+                <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 flex items-center justify-center shrink-0">
+                        {% if status_code == 404 %}
+                        <i data-lucide="file-question" class="size-5"></i>
+                        {% elif status_code == 500 %}
+                        <i data-lucide="server-crash" class="size-5"></i>
+                        {% else %}
+                        <i data-lucide="alert-triangle" class="size-5"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="font-bold text-navy-950 dark:text-cream-100">
+                            {% if status_code == 404 %}
+                            Resource Missing
+                            {% else %}
+                            Application Notice
+                            {% endif %}
+                        </div>
+                        <div class="text-xs text-navy-700/70 dark:text-cream-100/60">
+                            {{ request.url.path if request else "Unknown Path" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-xs text-navy-700/60 dark:text-cream-100/50 font-mono">
+                    <span>Status: {{ status_code or 404 }}</span>
+                    <span>&bull;</span>
+                    <span>Unresolved</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Error Body Content -->
+        <div class="text-navy-900/90 dark:text-cream-100/90 text-base sm:text-lg leading-relaxed space-y-6">
+            <p>
+                {% if message and message != "An error occurred" %}
+                {{ message }}
+                {% elif status_code == 404 %}
+                The article or page you requested could not be found. It may have been removed, renamed, or is temporarily unavailable.
+                {% else %}
+                The server encountered an error and could not complete your request. Please try again in a few moments.
+                {% endif %}
+            </p>
+
+            <!-- Callout Box -->
+            <div class="p-4 sm:p-5 rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border-l-4 border-navy-900 dark:border-cream-100 border-t border-r border-b border-navy-900/10 dark:border-navy-700 text-sm sm:text-base">
+                <p class="font-semibold text-navy-950 dark:text-cream-100 mb-1">What can you do?</p>
+                <p class="text-navy-900/80 dark:text-cream-100/75">
+                    Double-check the URL for typos, use the back button to return to your previous page, or browse through the latest articles from the homepage.
+                </p>
+            </div>
+        </div>
+
+        <!-- Error Footer / Actions -->
+        <footer class="mt-10 pt-6 border-t border-navy-900/10 dark:border-navy-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <!-- Tags -->
+            <div class="flex flex-wrap gap-2">
+                <span class="text-xs font-mono px-2.5 py-1 rounded bg-navy-900/5 dark:bg-navy-700/50 text-navy-900 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700">#http-{{ status_code or 404 }}</span>
+                <span class="text-xs font-mono px-2.5 py-1 rounded bg-navy-900/5 dark:bg-navy-700/50 text-navy-900 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700">#navigation</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/'"
+                        class="px-3.5 py-1.5 text-xs font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer inline-flex items-center gap-1.5">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    Go Back
+                </button>
+                <a href="/" class="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors inline-flex items-center gap-1.5">
+                    <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                    All Articles
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Sidebar Column -->
+    <aside class="flex flex-col gap-6" id="about">
+        {% include "sidebar.html" %}
+    </aside>
+</div>
+{% endblock content %}
