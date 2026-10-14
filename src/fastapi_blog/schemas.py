@@ -15,16 +15,28 @@ class UserCreate(UserBase):
 class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
-    # Fields that are added by sytem and not provided by user or client
+    # Fields that are added by system and not provided by user or client
     id: int
-    image_file: str | None
+    image_file: str | None = None
     image_path: str
+
+
+class UserUpdate(BaseModel):
+    username: str | None = Field(default=None, min_length=1, max_length=50)
+    email: EmailStr | None = Field(default=None, min_length=1, max_length=120)
+    image_file: str | None = Field(default=None, min_length=1)
 
 
 class PostBase(BaseModel):
     title: str = Field(min_length=1, max_length=100)
     content: str = Field(min_length=20)
     published: bool = False
+
+
+class PostUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=100)
+    content: str | None = Field(default=None, min_length=20)
+    published: bool | None = None
 
 
 class PostCreate(PostBase):
@@ -34,7 +46,7 @@ class PostCreate(PostBase):
 class PostResponse(PostBase):
     model_config = ConfigDict(from_attributes=True)
 
-    # Fields that are added by sytem and not provided by user or client
+    # Fields that are added by system and not provided by user or client
     id: int
     user_id: int
     date_posted: datetime
