@@ -1,0 +1,343 @@
+<!-- ========================================== -->
+<!-- 1. CREATE POST MODAL                       -->
+<!-- ========================================== -->
+<div id="create-post-modal"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-xs transition-opacity duration-200 opacity-0 pointer-events-none"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="create-post-modal-title">
+    <div class="modal-card relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-xl border border-navy-900/10 dark:border-navy-700 shadow-2xl p-6 sm:p-7 transform scale-95 transition-all duration-200">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-navy-900/10 dark:border-navy-700">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 flex items-center justify-center shrink-0">
+                    <i data-lucide="square-pen" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 id="create-post-modal-title" class="text-lg font-bold tracking-tight text-navy-950 dark:text-cream-100 leading-tight">
+                        Create New Post
+                    </h3>
+                    <p class="text-xs text-navy-700/70 dark:text-cream-100/60 mt-0.5">
+                        Write and publish your article to the blog
+                    </p>
+                </div>
+            </div>
+            <button id="close-create-post-x-btn"
+                    type="button"
+                    class="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-700 hover:text-navy-950 dark:text-cream-100/70 dark:hover:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer"
+                    aria-label="Close dialog">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form id="create-post-form" class="mt-5 space-y-4">
+            <!-- Title Field -->
+            <div>
+                <label for="post-title" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                    Title <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       id="post-title"
+                       name="title"
+                       required
+                       maxlength="100"
+                       placeholder="e.g. Asynchronous Database Queries in FastAPI"
+                       class="w-full px-3.5 py-2 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+                <div class="flex justify-between items-center mt-1 text-[11px] text-navy-700/60 dark:text-cream-100/50">
+                    <span>1 to 100 characters</span>
+                    <span id="title-char-count">0/100</span>
+                </div>
+            </div>
+
+            <!-- Content Field -->
+            <div>
+                <label for="post-content" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                    Content <span class="text-red-500">*</span>
+                </label>
+                <textarea id="post-content"
+                          name="content"
+                          required
+                          minlength="20"
+                          rows="5"
+                          placeholder="Write your article content here (minimum 20 characters)..."
+                          class="w-full px-3.5 py-2 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors resize-y"></textarea>
+                <div class="flex justify-between items-center mt-1 text-[11px] text-navy-700/60 dark:text-cream-100/50">
+                    <span>At least 20 characters</span>
+                    <span id="content-char-count">0 characters</span>
+                </div>
+            </div>
+
+            <!-- Options Row -->
+            <div class="flex items-center justify-between pt-1">
+                <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input type="checkbox"
+                           id="post-published"
+                           name="published"
+                           checked
+                           class="w-4 h-4 rounded border-navy-900/20 accent-navy-900 dark:accent-cream-100 cursor-pointer">
+                    <span class="text-xs font-semibold text-navy-950 dark:text-cream-100">Publish immediately</span>
+                </label>
+                <span class="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-navy-900/5 dark:bg-navy-700/40 text-navy-700 dark:text-cream-100/70 border border-navy-900/10 dark:border-navy-700">
+                    Author ID: 5
+                </span>
+            </div>
+
+            <!-- Modal Actions / Footer -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-navy-900/10 dark:border-navy-700">
+                <button type="button"
+                        id="cancel-create-post-btn"
+                        class="px-4 py-2 text-sm font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-700 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit"
+                        id="submit-create-post-btn"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs">
+                    <span id="submit-btn-text">Publish Post</span>
+                    <i data-lucide="send" class="w-3.5 h-3.5" id="submit-btn-icon"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 2. SUCCESS MESSAGE MODAL                   -->
+<!-- ========================================== -->
+<div id="success-modal"
+     class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-xs transition-opacity duration-200 opacity-0 pointer-events-none"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="success-modal-title">
+    <div class="modal-card relative w-full max-w-md bg-white dark:bg-navy-900 rounded-xl border border-navy-900/10 dark:border-navy-700 shadow-2xl p-6 sm:p-7 text-center transform scale-95 transition-all duration-200">
+        <!-- Success Badge -->
+        <div class="w-12 h-12 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="check-circle-2" class="w-7 h-7"></i>
+        </div>
+
+        <h3 id="success-modal-title" class="text-xl font-bold tracking-tight text-navy-950 dark:text-cream-100 mb-1.5">
+            Post Created Successfully!
+        </h3>
+        <p id="success-modal-desc" class="text-sm text-navy-700/80 dark:text-cream-100/75 mb-5">
+            Your post has been successfully recorded and published.
+        </p>
+
+        <!-- Post Preview Card -->
+        <div id="success-post-preview" class="p-3.5 mb-6 rounded-lg bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/10 dark:border-navy-700 text-left">
+            <div class="flex items-center justify-between text-xs font-mono text-navy-700/60 dark:text-cream-100/50 mb-1">
+                <span id="success-post-meta">#post-id</span>
+                <span id="success-post-status" class="text-emerald-600 dark:text-emerald-400 font-semibold font-sans">Active</span>
+            </div>
+            <h4 id="success-post-title" class="text-sm font-bold text-navy-950 dark:text-cream-100 line-clamp-2">
+                Post Title
+            </h4>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-center gap-3">
+            <button type="button"
+                    id="close-success-btn"
+                    class="px-4 py-2 text-sm font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-700 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                Close
+            </button>
+            <a id="success-view-post-link"
+               href="#"
+               class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors">
+                <span>View Post</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 3. ERROR MESSAGE MODAL                     -->
+<!-- ========================================== -->
+<div id="error-modal"
+     class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-xs transition-opacity duration-200 opacity-0 pointer-events-none"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="error-modal-title">
+    <div class="modal-card relative w-full max-w-md bg-white dark:bg-navy-900 rounded-xl border border-navy-900/10 dark:border-navy-700 shadow-2xl p-6 sm:p-7 text-center transform scale-95 transition-all duration-200">
+        <!-- Error Badge -->
+        <div class="w-12 h-12 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+        </div>
+
+        <h3 id="error-modal-title" class="text-xl font-bold tracking-tight text-navy-950 dark:text-cream-100 mb-1.5">
+            Unable to Process Request
+        </h3>
+        <p id="error-modal-desc" class="text-sm text-navy-700/80 dark:text-cream-100/75 mb-4">
+            FastAPI returned the following error(s):
+        </p>
+
+        <!-- Errors Box -->
+        <div id="error-modal-list"
+             class="mb-6 p-3.5 rounded-lg bg-red-500/10 border border-red-500/20 text-left text-xs sm:text-sm text-red-800 dark:text-red-300 max-h-56 overflow-y-auto space-y-2">
+            <!-- Dynamic Error Items -->
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-center gap-3">
+            <button type="button"
+                    id="close-error-btn"
+                    class="w-full sm:w-auto px-5 py-2 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer shadow-xs">
+                Back to Editor
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 4. EDIT POST MODAL                         -->
+<!-- ========================================== -->
+<div id="edit-post-modal"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-xs transition-opacity duration-200 opacity-0 pointer-events-none"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="edit-post-modal-title">
+    <div class="modal-card relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-xl border border-navy-900/10 dark:border-navy-700 shadow-2xl p-6 sm:p-7 transform scale-95 transition-all duration-200">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-navy-900/10 dark:border-navy-700">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 flex items-center justify-center shrink-0">
+                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 id="edit-post-modal-title" class="text-lg font-bold tracking-tight text-navy-950 dark:text-cream-100 leading-tight">
+                        Edit Post
+                    </h3>
+                    <p class="text-xs text-navy-700/70 dark:text-cream-100/60 mt-0.5">
+                        Update post details and publication status
+                    </p>
+                </div>
+            </div>
+            <button id="close-edit-post-x-btn"
+                    type="button"
+                    class="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-700 hover:text-navy-950 dark:text-cream-100/70 dark:hover:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer"
+                    aria-label="Close dialog">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form id="edit-post-form" class="mt-5 space-y-4">
+            <input type="hidden" id="edit-post-id" name="id">
+
+            <!-- Title Field -->
+            <div>
+                <label for="edit-post-title" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                    Title <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       id="edit-post-title"
+                       name="title"
+                       required
+                       maxlength="100"
+                       placeholder="Post title"
+                       class="w-full px-3.5 py-2 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+                <div class="flex justify-between items-center mt-1 text-[11px] text-navy-700/60 dark:text-cream-100/50">
+                    <span>1 to 100 characters</span>
+                    <span id="edit-title-char-count">0/100</span>
+                </div>
+            </div>
+
+            <!-- Content Field -->
+            <div>
+                <label for="edit-post-content" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                    Content <span class="text-red-500">*</span>
+                </label>
+                <textarea id="edit-post-content"
+                          name="content"
+                          required
+                          minlength="20"
+                          rows="6"
+                          placeholder="Write your article content here..."
+                          class="w-full px-3.5 py-2 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors resize-y"></textarea>
+                <div class="flex justify-between items-center mt-1 text-[11px] text-navy-700/60 dark:text-cream-100/50">
+                    <span>At least 20 characters</span>
+                    <span id="edit-content-char-count">0 characters</span>
+                </div>
+            </div>
+
+            <!-- Options Row -->
+            <div class="flex items-center justify-between pt-1">
+                <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input type="checkbox"
+                           id="edit-post-published"
+                           name="published"
+                           class="w-4 h-4 rounded border-navy-900/20 accent-navy-900 dark:accent-cream-100 cursor-pointer">
+                    <span class="text-xs font-semibold text-navy-950 dark:text-cream-100">Published</span>
+                </label>
+                <span id="edit-post-author-badge" class="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-navy-900/5 dark:bg-navy-700/40 text-navy-700 dark:text-cream-100/70 border border-navy-900/10 dark:border-navy-700">
+                    Author ID: 5
+                </span>
+            </div>
+
+            <!-- Modal Actions / Footer -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-navy-900/10 dark:border-navy-700">
+                <button type="button"
+                        id="cancel-edit-post-btn"
+                        class="px-4 py-2 text-sm font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-700 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit"
+                        id="submit-edit-post-btn"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs">
+                    <span id="edit-submit-btn-text">Save Changes</span>
+                    <i data-lucide="check" class="w-3.5 h-3.5" id="edit-submit-btn-icon"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 5. DELETE CONFIRMATION MODAL               -->
+<!-- ========================================== -->
+<div id="delete-post-modal"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-xs transition-opacity duration-200 opacity-0 pointer-events-none"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="delete-post-modal-title">
+    <div class="modal-card relative w-full max-w-md bg-white dark:bg-navy-900 rounded-xl border border-navy-900/10 dark:border-navy-700 shadow-2xl p-6 sm:p-7 text-center transform scale-95 transition-all duration-200">
+        <!-- Delete Warning Badge -->
+        <div class="w-12 h-12 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="trash-2" class="w-6 h-6"></i>
+        </div>
+
+        <h3 id="delete-post-modal-title" class="text-xl font-bold tracking-tight text-navy-950 dark:text-cream-100 mb-1.5">
+            Delete Post?
+        </h3>
+        <p class="text-sm text-navy-700/80 dark:text-cream-100/75 mb-5">
+            Are you sure you want to delete this article? This action cannot be undone.
+        </p>
+
+        <!-- Post Preview Card -->
+        <div class="p-3.5 mb-6 rounded-lg bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 text-left">
+            <div class="text-xs font-mono text-red-600 dark:text-red-400 mb-1" id="delete-post-meta">
+                #post-0
+            </div>
+            <h4 id="delete-post-title" class="text-sm font-bold text-navy-950 dark:text-cream-100 line-clamp-2">
+                Post Title
+            </h4>
+        </div>
+
+        <input type="hidden" id="delete-post-id">
+
+        <!-- Actions -->
+        <div class="flex items-center justify-center gap-3">
+            <button type="button"
+                    id="cancel-delete-post-btn"
+                    class="px-4 py-2 text-sm font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-700 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                Cancel
+            </button>
+            <button type="button"
+                    id="confirm-delete-post-btn"
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs">
+                <span id="delete-btn-text">Delete Post</span>
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+</div>

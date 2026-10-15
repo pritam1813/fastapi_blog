@@ -58,18 +58,22 @@
                         <span>{{ "Published" if post.published else "Draft" }}</span>
                     </div>
 
-                    <!-- TODO: Only visible to authors/owners of the post -->
+                    <!-- Post Actions -->
                     <div class="flex items-center gap-2">
-                        <a href="#edit-post-{{ post.id }}" 
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors"
-                           title="Edit post (Author only)">
+                        <button type="button" 
+                                class="edit-post-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer"
+                                data-post-id="{{ post.id }}"
+                                data-post-title="{{ post.title }}"
+                                data-post-published="{{ 'true' if post.published else 'false' }}"
+                                title="Edit post">
                             <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                             Edit
-                        </a>
+                        </button>
                         <button type="button" 
-                                onclick="if(confirm('Are you sure you want to delete this post? (Placeholder)')) alert('Delete functionality will be available to authors soon.');"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-                                title="Delete post (Author only)">
+                                class="delete-post-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                                data-post-id="{{ post.id }}"
+                                data-post-title="{{ post.title }}"
+                                title="Delete post">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             Delete
                         </button>

@@ -53,6 +53,12 @@
                 </ul>
             </div>
             <div class="flex items-center gap-2.5">
+                <!-- New Post Button -->
+                <button id="open-create-post-btn" type="button" aria-label="Create new post"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer shadow-xs">
+                    <i data-lucide="square-pen" class="w-4 h-4"></i>
+                    <span>New Post</span>
+                </button>
                 <!-- Theme Toggle Button -->
                 <button id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle dark mode"
                         class="w-9 h-9 inline-flex items-center justify-center rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
@@ -86,8 +92,13 @@
         </div>
     </footer>
 
+    <!-- Modals (Create Post, Success, Error) -->
+    {% include "modals.html" %}
+
     <!-- Theme Toggle Logic -->
     <script src="{{ url_for('static', path='js/darkmode.js') }}"></script>
+    <!-- Post Modals Logic -->
+    <script src="{{ url_for('static', path='js/post_modal.js') }}"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
