@@ -1,16 +1,28 @@
+from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 import fastapi_blog.models as models
+from fastapi_blog.auth import (
+    create_access_token,
+    get_password_hash,
+    oauth2_scheme,
+    verify_access_token,
+    verify_password,
+)
+from fastapi_blog.config import settings
 from fastapi_blog.database import get_db
 from fastapi_blog.schemas import (
     PostResponse,
+    Token,
     UserCreate,
-    UserResponse,
+    UserPrivate,
+    UserPublic,
     UserUpdate,
 )
 
@@ -18,11 +30,13 @@ router = APIRouter()
 
 
 @router.post(
-    "", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+    "", response_model=UserPrivate, status_code=status.HTTP_201_CREATED
 )  # db: is dependency Injection
 async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
-        select(models.User).where(models.User.username == user.username)
+        select(models.User).where(
+            func.lower(models.User.username) == user.username.lower()
+        )
     )
     existing_user = result.scalars().first()
 
@@ -33,7 +47,7 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
         )
 
     result = await db.execute(
-        select(models.User).where(models.User.email == user.email)
+        select(models.User).where(func.lower(models.User.email) == user.email.lower())
     )
     existing_email = result.scalars().first()
 
@@ -43,7 +57,11 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
             detail="Email already exists",
         )
 
-    new_user = models.User(username=user.username, email=user.email)
+    new_user = models.User(
+        username=user.username,
+        email=user.email.lower(),
+        password_hash=get_password_hash(user.password),
+    )
 
     db.add(new_user)
     await db.commit()
@@ -52,7 +70,57 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
     return new_user
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.post("/token")
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> Token:
+    result = await db.execute(
+        select(models.User).where(
+            func.lower(models.User.email) == form_data.username.lower()
+        )
+    )
+
+    user = result.scalars().first()
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token = create_access_token(
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
+
+
+@router.get("/me")
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        user_id = verify_access_token(token)
+        if user_id is None:
+            raise credentials_exception
+        user_id_int = int(user_id)
+    except (TypeError, ValueError) as err:
+        raise credentials_exception from err
+    result = await db.execute(select(models.User).where(models.User.id == user_id_int))
+    user = result.scalars().first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+@router.get("/{user_id}", response_model=UserPublic)
 async def get_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(select(models.User).where(models.User.id == user_id))
 
@@ -83,7 +151,7 @@ async def get_user_posts(user_id: int, db: Annotated[AsyncSession, Depends(get_d
     return posts
 
 
-@router.patch("/{user_id}", response_model=UserResponse)
+@router.patch("/{user_id}", response_model=UserPrivate)
 async def update_user(
     user_id: int, user_details: UserUpdate, db: Annotated[AsyncSession, Depends(get_db)]
 ):
@@ -95,9 +163,14 @@ async def update_user(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
-    if user_details.username is not None and user_details.username != user.username:
+    if (
+        user_details.username is not None
+        and user_details.username.lower() != user.username.lower()
+    ):
         result = await db.execute(
-            select(models.User).where(models.User.username == user_details.username)
+            select(models.User).where(
+                func.lower(models.User.username) == user_details.username.lower()
+            )
         )
         existing_user = result.scalars().first()
 
@@ -107,9 +180,14 @@ async def update_user(
                 detail="Username already exists",
             )
 
-    if user_details.email is not None and user_details.email != user.email:
+    if (
+        user_details.email is not None
+        and user_details.email.lower() != user.email.lower()
+    ):
         result = await db.execute(
-            select(models.User).where(models.User.email == user_details.email)
+            select(models.User).where(
+                func.lower(models.User.email) == user_details.email.lower()
+            )
         )
         existing_user = result.scalars().first()
 
@@ -122,7 +200,7 @@ async def update_user(
     if user_details.username is not None:
         user.username = user_details.username
     if user_details.email is not None:
-        user.email = user_details.email
+        user.email = user_details.email.lower()
     if user_details.image_file is not None:
         user.image_file = user_details.image_file
 
