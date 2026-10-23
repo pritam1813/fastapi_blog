@@ -17,6 +17,7 @@ class UserPublic(BaseModel):
 
     # Fields that are added by system and not provided by user or client
     id: int
+    username: str
     image_file: str | None = None
     image_path: str
 
@@ -49,7 +50,7 @@ class PostUpdate(BaseModel):
 
 
 class PostCreate(PostBase):
-    user_id: int  # Temporary
+    pass
 
 
 class PostResponse(PostBase):

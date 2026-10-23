@@ -36,6 +36,21 @@
             --color-cream-100: #fcf1d0;
         }
     </style>
+    <!-- Auth state bootstrap: avoids a flash of the wrong header buttons -->
+    <script>
+        (function () {
+            try {
+                document.documentElement.dataset.authState =
+                    localStorage.getItem("access_token") ? "authenticated" : "guest";
+            } catch {
+                document.documentElement.dataset.authState = "guest";
+            }
+        })();
+    </script>
+    <style>
+        html[data-auth-state="authenticated"] [data-auth="guest"] { display: none !important; }
+        html[data-auth-state="guest"] [data-auth="user"] { display: none !important; }
+    </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#faf6ed] text-navy-950 dark:bg-navy-950 dark:text-cream-100 antialiased transition-colors duration-200">
     <!-- Header -->
@@ -53,8 +68,8 @@
                 </ul>
             </div>
             <div class="flex items-center gap-2.5">
-                <!-- New Post Button -->
-                <button id="open-create-post-btn" type="button" aria-label="Create new post"
+                <!-- New Post Button (authenticated only) -->
+                <button id="open-create-post-btn" type="button" data-auth="user" aria-label="Create new post"
                         class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer shadow-xs">
                     <i data-lucide="square-pen" class="w-4 h-4"></i>
                     <span>New Post</span>
@@ -67,8 +82,50 @@
                     <!-- Sun icon (visible in dark mode) -->
                     <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
                 </button>
-                <a href="#login" class="px-3.5 py-1.5 text-sm font-semibold rounded-md text-navy-900 hover:bg-navy-900/5 dark:text-cream-100 dark:hover:bg-navy-700/50 transition-colors">Log in</a>
-                <a href="#register" class="px-3.5 py-1.5 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors">Register</a>
+
+                <!-- Guest actions -->
+                <div data-auth="guest" class="flex items-center gap-2.5">
+                    <a href="/login" class="px-3.5 py-1.5 text-sm font-semibold rounded-md text-navy-900 hover:bg-navy-900/5 dark:text-cream-100 dark:hover:bg-navy-700/50 transition-colors">Log in</a>
+                    <a href="/register" class="px-3.5 py-1.5 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors">Register</a>
+                </div>
+
+                <!-- Signed-in user menu -->
+                <div data-auth="user" class="relative">
+                    <button id="user-menu-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu"
+                            class="inline-flex items-center gap-2 pl-1 pr-2 py-1 rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                        <img id="nav-user-avatar" src="{{ url_for('static', path='icons/writer.svg') }}" alt="Your avatar"
+                             class="size-7 rounded-full object-cover border border-navy-900/10 dark:border-navy-700" width="28" height="28">
+                        <span data-user-field="username" class="hidden sm:inline max-w-[9rem] truncate text-sm font-semibold">Account</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-70"></i>
+                    </button>
+
+                    <div id="user-menu" role="menu"
+                         class="hidden absolute right-0 mt-2 w-60 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xl overflow-hidden">
+                        <div class="px-4 py-3 border-b border-navy-900/10 dark:border-navy-700">
+                            <p data-user-field="username" class="text-sm font-bold text-navy-950 dark:text-cream-100 truncate">Account</p>
+                            <p data-user-field="email" class="text-xs font-mono text-navy-700/70 dark:text-cream-100/60 truncate"></p>
+                        </div>
+                        <div class="py-1">
+                            <a id="menu-my-posts" href="/" role="menuitem"
+                               class="flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors">
+                                <i data-lucide="notebook-pen" class="w-4 h-4"></i>
+                                My posts
+                            </a>
+                            <a id="menu-profile" href="/" role="menuitem"
+                               class="flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors">
+                                <i data-lucide="user-round" class="w-4 h-4"></i>
+                                Profile
+                            </a>
+                        </div>
+                        <div class="py-1 border-t border-navy-900/10 dark:border-navy-700">
+                            <button id="menu-logout" type="button" role="menuitem"
+                                    class="w-full flex items-center gap-2.5 px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer">
+                                <i data-lucide="log-out" class="w-4 h-4"></i>
+                                Log out
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
@@ -97,8 +154,14 @@
 
     <!-- Theme Toggle Logic -->
     <script src="{{ url_for('static', path='js/darkmode.js') }}"></script>
-    <!-- Post Modals Logic -->
+    <!-- Shared UI helpers (modals, error rendering, toasts) -->
+    <script src="{{ url_for('static', path='js/ui.js') }}"></script>
+    <!-- Session / authentication state -->
+    <script src="{{ url_for('static', path='js/auth.js') }}"></script>
+    <!-- Post CRUD Logic -->
     <script src="{{ url_for('static', path='js/post_modal.js') }}"></script>
+    <!-- Profile CRUD Logic -->
+    <script src="{{ url_for('static', path='js/profile.js') }}"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>

@@ -9,10 +9,9 @@ from sqlalchemy.orm import selectinload
 
 import fastapi_blog.models as models
 from fastapi_blog.auth import (
+    CurrentUser,
     create_access_token,
     get_password_hash,
-    oauth2_scheme,
-    verify_access_token,
     verify_password,
 )
 from fastapi_blog.config import settings
@@ -96,28 +95,11 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserPrivate)
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: CurrentUser,
 ):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        user_id = verify_access_token(token)
-        if user_id is None:
-            raise credentials_exception
-        user_id_int = int(user_id)
-    except (TypeError, ValueError) as err:
-        raise credentials_exception from err
-    result = await db.execute(select(models.User).where(models.User.id == user_id_int))
-    user = result.scalars().first()
-    if user is None:
-        raise credentials_exception
-    return user
+    return current_user
 
 
 @router.get("/{user_id}", response_model=UserPublic)
@@ -153,8 +135,16 @@ async def get_user_posts(user_id: int, db: Annotated[AsyncSession, Depends(get_d
 
 @router.patch("/{user_id}", response_model=UserPrivate)
 async def update_user(
-    user_id: int, user_details: UserUpdate, db: Annotated[AsyncSession, Depends(get_db)]
+    user_id: int,
+    user_details: UserUpdate,
+    current_user: CurrentUser,
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this user.",
+        )
     result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
 
@@ -210,7 +200,16 @@ async def update_user(
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+async def delete_user(
+    user_id: int,
+    current_user: CurrentUser,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to delete this user.",
+        )
     result = await db.execute(select(models.User).where(models.User.id == user_id))
 
     user = result.scalars().first()

@@ -14,12 +14,14 @@
     <div>
         <div class="flex items-center justify-between pb-4 mb-4">
             <h2 class="text-xl font-bold tracking-tight text-navy-950 dark:text-cream-100">Latest Articles</h2>
-            <span class="text-xs font-medium text-navy-700/70 dark:text-cream-100/60">{{ posts|length }} articles</span>
+            <span id="home-article-count" class="text-xs font-medium text-navy-700/70 dark:text-cream-100/60">{{ posts|length }} articles</span>
         </div>
 
-        <div class="flex flex-col gap-5">
+        <div id="home-post-list" data-post-list class="flex flex-col gap-5">
             {% for post in posts %}
-            <article id="post-card-{{ post.id }}" class="p-6 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 transition-all hover:-translate-y-0.5 hover:border-navy-700/40 dark:hover:border-cream-100/30 shadow-xs hover:shadow-md">
+            <article id="post-card-{{ post.id }}"
+                     {% if not post.published %}data-owner-id="{{ post.user_id }}" data-owner-display="block" style="display:none"{% endif %}
+                     class="p-6 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 transition-all hover:-translate-y-0.5 hover:border-navy-700/40 dark:hover:border-cream-100/30 shadow-xs hover:shadow-md">
                 <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
                     <div class="flex items-center gap-3 text-sm font-medium text-navy-900 dark:text-cream-100">
                         <img src="{{ post.author.image_path if post.author and post.author.image_path else url_for('static', path='icons/writer.svg') }}" alt="{{ post.author.username if post.author else 'Author' }}" 
@@ -40,7 +42,11 @@
                         </div>
                     </div>
 
-                    <span class="text-xs font-mono text-navy-700/60 dark:text-cream-100/50">#post-{{ post.id }}</span>
+                    <div class="flex items-center gap-2">
+                        <span id="post-status-{{ post.id }}"
+                              class="text-[11px] font-semibold px-2 py-0.5 rounded border {% if post.published %}hidden{% else %}bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/25{% endif %}">{{ "Draft" if not post.published else "" }}</span>
+                        <span class="text-xs font-mono text-navy-700/60 dark:text-cream-100/50">#post-{{ post.id }}</span>
+                    </div>
                 </div>
 
                 <h3 class="text-xl font-bold tracking-tight text-navy-950 dark:text-cream-100 mb-2 leading-snug">
@@ -55,11 +61,13 @@
                         <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
                     </a>
 
-                    <!-- Post Actions -->
-                    <div class="flex items-center gap-2">
+                    <!-- Post Actions (owner only) -->
+                    <div class="flex items-center gap-2"
+                         data-owner-id="{{ post.user_id }}" data-owner-display="flex" style="display:none">
                         <button type="button" 
                                 class="edit-post-btn inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded border border-navy-900/15 dark:border-navy-700 text-navy-700 dark:text-cream-100/70 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer"
                                 data-post-id="{{ post.id }}"
+                                data-post-author-id="{{ post.user_id }}"
                                 data-post-title="{{ post.title }}"
                                 data-post-published="{{ 'true' if post.published else 'false' }}"
                                 title="Edit post">
@@ -69,6 +77,7 @@
                         <button type="button" 
                                 class="delete-post-btn inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
                                 data-post-id="{{ post.id }}"
+                                data-post-author-id="{{ post.user_id }}"
                                 data-post-title="{{ post.title }}"
                                 title="Delete post">
                             <i data-lucide="trash-2" class="w-3 h-3"></i>
@@ -78,6 +87,22 @@
                 </div>
             </article>
             {% endfor %}
+        </div>
+
+        <div id="home-post-empty" data-post-empty-for="home-post-list"
+             {% if posts %}style="display:none"{% endif %}
+             class="p-8 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 text-center shadow-xs">
+            <div class="size-12 mx-auto rounded-full bg-navy-900/5 dark:bg-navy-700/40 border border-navy-900/10 dark:border-navy-700 flex items-center justify-center text-navy-900 dark:text-cream-100 mb-4">
+                <i data-lucide="inbox" class="size-6"></i>
+            </div>
+            <h3 class="text-base font-bold text-navy-950 dark:text-cream-100 mb-1">No articles yet</h3>
+            <p class="text-sm text-navy-700/70 dark:text-cream-100/60" data-auth="user">Use the New Post button to write the first one.</p>
+            <p class="text-sm text-navy-700/70 dark:text-cream-100/60" data-auth="guest">
+                <a href="/login" class="font-semibold hover:underline">Log in</a>
+                or
+                <a href="/register" class="font-semibold hover:underline">register</a>
+                to write the first one.
+            </p>
         </div>
     </div>
 

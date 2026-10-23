@@ -12,13 +12,37 @@
 <!-- Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 items-start">
     <!-- Article Column -->
-    <article class="p-6 sm:p-8 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs">
+    <div class="flex flex-col gap-6">
+    {% if not post.published %}
+    <div id="draft-private-notice"
+         data-author-id="{{ post.user_id }}"
+         style="display:none"
+         class="p-8 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs text-center">
+        <div class="size-12 mx-auto rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/25 flex items-center justify-center mb-4">
+            <i data-lucide="lock" class="size-6"></i>
+        </div>
+        <h2 class="text-lg font-bold text-navy-950 dark:text-cream-100 mb-1">This draft is private</h2>
+        <p class="text-sm text-navy-700/70 dark:text-cream-100/60">
+            Drafts are only visible to their author.
+            <a href="/login" class="font-semibold hover:underline">Log in</a> if this one is yours.
+        </p>
+    </div>
+    {% endif %}
+    <article {% if not post.published %}data-owner-id="{{ post.user_id }}" data-owner-display="block" style="display:none"{% endif %}
+             class="p-6 sm:p-8 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs">
         <!-- Article Header -->
         <header class="pb-6 mb-8 border-b border-navy-900/10 dark:border-navy-700">
             <div class="flex items-center gap-2.5 mb-4 flex-wrap">
                 <span class="inline-block px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider font-mono rounded bg-navy-900/5 text-navy-700 dark:bg-navy-700/40 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700">
                     Article
                 </span>
+                {% if not post.published %}
+                <span id="post-status-{{ post.id }}" class="inline-block px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider font-mono rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25">
+                    Draft
+                </span>
+                {% else %}
+                <span id="post-status-{{ post.id }}" class="hidden"></span>
+                {% endif %}
                 <span class="text-xs font-mono text-navy-700/60 dark:text-cream-100/50">
                     #post-{{ post.id }}
                 </span>
@@ -58,11 +82,13 @@
                         <span>{{ "Published" if post.published else "Draft" }}</span>
                     </div>
 
-                    <!-- Post Actions -->
-                    <div class="flex items-center gap-2">
+                    <!-- Post Actions (owner only) -->
+                    <div class="flex items-center gap-2"
+                         data-owner-id="{{ post.user_id }}" data-owner-display="flex" style="display:none">
                         <button type="button" 
                                 class="edit-post-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer"
                                 data-post-id="{{ post.id }}"
+                                data-post-author-id="{{ post.user_id }}"
                                 data-post-title="{{ post.title }}"
                                 data-post-published="{{ 'true' if post.published else 'false' }}"
                                 title="Edit post">
@@ -72,6 +98,7 @@
                         <button type="button" 
                                 class="delete-post-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
                                 data-post-id="{{ post.id }}"
+                                data-post-author-id="{{ post.user_id }}"
                                 data-post-title="{{ post.title }}"
                                 title="Delete post">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -109,6 +136,7 @@
             </div>
         </footer>
     </article>
+    </div>
 
     <!-- Sidebar Column -->
     <aside class="flex flex-col gap-6" id="about">

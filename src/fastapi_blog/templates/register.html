@@ -1,0 +1,284 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-8 sm:my-12">
+    <!-- Card Container -->
+    <div class="p-6 sm:p-8 rounded-xl bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-md">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 rounded-xl bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 mx-auto flex items-center justify-center mb-3.5 shadow-xs">
+                <i data-lucide="user-plus" class="w-6 h-6"></i>
+            </div>
+            <h1 class="text-2xl font-bold tracking-tight text-navy-950 dark:text-cream-100">Create an Account</h1>
+            <p class="text-xs sm:text-sm text-navy-700/70 dark:text-cream-100/60 mt-1">
+                Join FastAPI Blog to share notes, recipes, and tutorials
+            </p>
+        </div>
+
+        <!-- Error Alert Container -->
+        <div id="register-error-alert" class="hidden mb-5 p-3.5 rounded-lg bg-red-500/10 border border-red-500/20 text-xs sm:text-sm text-red-700 dark:text-red-300">
+            <div class="flex items-start gap-2.5">
+                <i data-lucide="alert-circle" class="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5"></i>
+                <div id="register-error-message" class="space-y-1"></div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="register-form" class="space-y-4">
+            <!-- Username Field -->
+            <div>
+                <label for="register-username" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                    Username <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       id="register-username"
+                       name="username"
+                       required
+                       minlength="1"
+                       maxlength="50"
+                       placeholder="johndoe"
+                       autocomplete="username"
+                       class="w-full px-3.5 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+            </div>
+
+            <!-- Email Field -->
+            <div>
+                <label for="register-email" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                    Email Address <span class="text-red-500">*</span>
+                </label>
+                <input type="email"
+                       id="register-email"
+                       name="email"
+                       required
+                       placeholder="you@example.com"
+                       autocomplete="email"
+                       class="w-full px-3.5 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+            </div>
+
+            <!-- Password Field -->
+            <div>
+                <label for="register-password" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                    Password <span class="text-red-500">*</span>
+                </label>
+                <input type="password"
+                       id="register-password"
+                       name="password"
+                       required
+                       minlength="8"
+                       placeholder="At least 8 characters"
+                       autocomplete="new-password"
+                       class="w-full px-3.5 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+                <span class="block mt-1 text-[11px] text-navy-700/60 dark:text-cream-100/50">
+                    Must be at least 8 characters long
+                </span>
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div>
+                <label for="register-confirm-password" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                    Confirm Password <span class="text-red-500">*</span>
+                </label>
+                <input type="password"
+                       id="register-confirm-password"
+                       name="confirm_password"
+                       required
+                       minlength="8"
+                       placeholder="Re-enter your password"
+                       autocomplete="new-password"
+                       class="w-full px-3.5 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                    id="register-submit-btn"
+                    class="w-full mt-2 py-2.5 px-4 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                <span id="register-submit-text">Create Account</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </form>
+
+        <!-- Footer / Link to Login -->
+        <div class="mt-6 pt-5 border-t border-navy-900/10 dark:border-navy-700 text-center text-xs text-navy-700/70 dark:text-cream-100/60">
+            Already have an account?
+            <a href="/login" class="font-bold text-navy-950 dark:text-cream-100 hover:underline ml-1">
+                Log in here
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const registerForm = document.getElementById("register-form");
+    const usernameInput = document.getElementById("register-username");
+    const emailInput = document.getElementById("register-email");
+    const passwordInput = document.getElementById("register-password");
+    const confirmPasswordInput = document.getElementById("register-confirm-password");
+    const submitBtn = document.getElementById("register-submit-btn");
+    const submitText = document.getElementById("register-submit-text");
+    const errorAlert = document.getElementById("register-error-alert");
+    const errorMessage = document.getElementById("register-error-message");
+
+    const params = new URLSearchParams(window.location.search);
+
+    // Only allow same-origin paths to avoid open redirects via ?next=
+    function safeNext(value) {
+        if (!value) return "/";
+        try {
+            const url = new URL(value, window.location.origin);
+            if (url.origin !== window.location.origin) return "/";
+            if (url.pathname === "/login" || url.pathname === "/register") return "/";
+            return url.pathname + url.search + url.hash;
+        } catch {
+            return "/";
+        }
+    }
+
+    const nextUrl = safeNext(params.get("next"));
+
+    // Already signed in? Send them back to where they were going.
+    if (window.Auth) {
+        window.Auth.ready.then((user) => {
+            if (user) window.location.replace(nextUrl);
+        });
+    }
+
+    function showError(msg) {
+        if (!errorAlert || !errorMessage) return;
+        errorMessage.innerHTML = "";
+        if (Array.isArray(msg)) {
+            const ul = document.createElement("ul");
+            ul.className = "list-disc list-inside space-y-1";
+            msg.forEach(m => {
+                const li = document.createElement("li");
+                li.textContent = m;
+                ul.appendChild(li);
+            });
+            errorMessage.appendChild(ul);
+        } else {
+            errorMessage.textContent = msg;
+        }
+        errorAlert.classList.remove("hidden");
+    }
+
+    function clearError() {
+        if (!errorAlert) return;
+        errorAlert.classList.add("hidden");
+        if (errorMessage) errorMessage.innerHTML = "";
+    }
+
+    if (registerForm) {
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearError();
+
+            const username = usernameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (!username || !email || !password || !confirmPassword) {
+                showError("Please fill in all required fields.");
+                return;
+            }
+
+            if (password.length < 8) {
+                showError("Password must be at least 8 characters long.");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError("Passwords do not match.");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitText.textContent = "Creating account...";
+
+            try {
+                // 1. Create User via POST /api/users
+                const response = await fetch("/api/users", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                if (!response.ok) {
+                    let errJson = null;
+                    try {
+                        errJson = await response.json();
+                    } catch {
+                        errJson = { detail: `Server error (${response.status})` };
+                    }
+
+                    if (typeof errJson.detail === "string") {
+                        showError(errJson.detail);
+                    } else if (Array.isArray(errJson.detail)) {
+                        showError(errJson.detail.map(item => {
+                            const field = item.loc && item.loc.length > 1 ? `${item.loc[item.loc.length - 1]}: ` : "";
+                            return `${field}${item.msg}`;
+                        }));
+                    } else {
+                        showError("Failed to register. Please check your information.");
+                    }
+                    return;
+                }
+
+                // 2. User created! Now authenticate to obtain access token
+                submitText.textContent = "Logging in...";
+                const formData = new URLSearchParams();
+                formData.append("username", email);
+                formData.append("password", password);
+
+                const tokenResponse = await fetch("/api/users/token", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Accept": "application/json"
+                    },
+                    body: formData.toString()
+                });
+
+                if (tokenResponse.ok) {
+                    const tokenData = await tokenResponse.json();
+                    if (window.Auth) {
+                        window.Auth.saveToken(tokenData);
+                        try {
+                            const me = await window.Auth.apiFetch("/api/users/me", {
+                                headers: { Accept: "application/json" }
+                            });
+                            if (me.ok) window.Auth.setUser(await me.json());
+                        } catch {
+                            // Next page hydrates the user
+                        }
+                    } else if (tokenData.access_token) {
+                        localStorage.setItem("access_token", tokenData.access_token);
+                    }
+                } else {
+                    showError("Account created, but automatic login failed. Please log in.");
+                    setTimeout(() => {
+                        window.location.href = `/login?next=${encodeURIComponent(nextUrl)}`;
+                    }, 1500);
+                    return;
+                }
+
+                window.location.href = nextUrl;
+
+            } catch (err) {
+                showError(err.message || "A network error occurred. Please try again.");
+            } finally {
+                submitBtn.disabled = false;
+                submitText.textContent = "Create Account";
+            }
+        });
+    }
+});
+</script>
+{% endblock content %}

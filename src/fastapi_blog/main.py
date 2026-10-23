@@ -108,6 +108,16 @@ async def user_post_page(
     )
 
 
+@app.get("/login", include_in_schema=False, name="login")
+async def login_page(request: Request):
+    return template.TemplateResponse(request, "login.html", {"title": "Log in"})
+
+
+@app.get("/register", include_in_schema=False, name="register")
+async def register_page(request: Request):
+    return template.TemplateResponse(request, "register.html", {"title": "Register"})
+
+
 # APIs
 
 
