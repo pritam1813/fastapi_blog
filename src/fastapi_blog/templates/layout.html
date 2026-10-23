@@ -111,10 +111,10 @@
                                 <i data-lucide="notebook-pen" class="w-4 h-4"></i>
                                 My posts
                             </a>
-                            <a id="menu-profile" href="/" role="menuitem"
+                            <a id="menu-account" href="/account" role="menuitem"
                                class="flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors">
-                                <i data-lucide="user-round" class="w-4 h-4"></i>
-                                Profile
+                                <i data-lucide="settings" class="w-4 h-4"></i>
+                                Account settings
                             </a>
                         </div>
                         <div class="py-1 border-t border-navy-900/10 dark:border-navy-700">
@@ -160,12 +160,12 @@
     <script src="{{ url_for('static', path='js/auth.js') }}"></script>
     <!-- Post CRUD Logic -->
     <script src="{{ url_for('static', path='js/post_modal.js') }}"></script>
-    <!-- Profile CRUD Logic -->
-    <script src="{{ url_for('static', path='js/profile.js') }}"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();
     </script>
+    <!-- Page-specific scripts -->
+    {% block extra_scripts %}{% endblock extra_scripts %}
 </body>
 </html>

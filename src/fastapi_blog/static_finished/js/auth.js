@@ -110,8 +110,6 @@
             const userPostsHref = `/users/${user.id}/posts`;
             const myPostsLink = document.getElementById("menu-my-posts");
             if (myPostsLink) myPostsLink.href = userPostsHref;
-            const profileLink = document.getElementById("menu-profile");
-            if (profileLink) profileLink.href = userPostsHref;
         }
 
         // Owner-only elements: <div data-owner-id="5" data-owner-display="flex">

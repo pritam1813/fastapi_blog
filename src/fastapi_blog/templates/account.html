@@ -1,0 +1,473 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- ============================================================ -->
+<!-- Loading state                                                -->
+<!-- ============================================================ -->
+<div id="account-loading" class="max-w-md mx-auto my-20 text-center">
+    <div class="size-10 mx-auto mb-4 rounded-full border-2 border-navy-900/15 border-t-navy-900 dark:border-cream-100/15 dark:border-t-cream-100 animate-spin"></div>
+    <p class="text-sm font-medium text-navy-700/70 dark:text-cream-100/60">Loading your account…</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- Load error state                                             -->
+<!-- ============================================================ -->
+<div id="account-load-error" class="hidden max-w-md mx-auto my-20 text-center">
+    <div class="size-12 mx-auto rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 flex items-center justify-center mb-4">
+        <i data-lucide="alert-circle" class="size-6"></i>
+    </div>
+    <h1 class="text-lg font-bold text-navy-950 dark:text-cream-100 mb-1.5">Could not load your account</h1>
+    <p id="account-load-error-message" class="text-sm text-navy-700/70 dark:text-cream-100/60 mb-5">
+        Something went wrong while fetching your profile.
+    </p>
+    <button id="account-retry-btn" type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        Try again
+    </button>
+</div>
+
+<!-- ============================================================ -->
+<!-- Account page                                                 -->
+<!-- ============================================================ -->
+<div id="account-page" class="hidden">
+    <!-- Page header -->
+    <section class="mb-10 pb-8 border-b border-navy-900/10 dark:border-navy-700">
+        <div class="flex items-center gap-4 sm:gap-5 flex-wrap">
+            <img id="account-avatar" src="{{ url_for('static', path='icons/writer.svg') }}" alt="Your avatar"
+                 class="size-16 sm:size-20 rounded-full border border-navy-900/10 dark:border-navy-700 object-cover shadow-xs shrink-0"
+                 width="80" height="80">
+
+            <div class="min-w-0">
+                <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                    <span class="inline-block px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider font-mono rounded bg-navy-900/5 text-navy-700 dark:bg-navy-700/40 dark:text-cream-100 border border-navy-900/10 dark:border-navy-700">
+                        Account
+                    </span>
+                    <span class="text-xs font-mono text-navy-700/60 dark:text-cream-100/50">
+                        ID <span id="account-id">—</span>
+                    </span>
+                </div>
+                <h1 id="account-display-name" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-navy-950 dark:text-cream-100 leading-tight">
+                    Account settings
+                </h1>
+                <p class="text-xs sm:text-sm text-navy-700/80 dark:text-cream-100/75 mt-1 font-mono truncate">
+                    <span id="account-display-email"></span>
+                </p>
+            </div>
+
+            <div class="ml-auto flex items-center gap-6 sm:gap-8 shrink-0">
+                <div class="text-right">
+                    <p id="account-post-count" class="text-xl font-extrabold tracking-tight text-navy-950 dark:text-cream-100">—</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-navy-700/60 dark:text-cream-100/50">Posts</p>
+                </div>
+                <div class="text-right">
+                    <p id="account-draft-count" class="text-xl font-extrabold tracking-tight text-navy-950 dark:text-cream-100">—</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-navy-700/60 dark:text-cream-100/50">Drafts</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 items-start">
+        <!-- Side navigation -->
+        <aside class="lg:sticky lg:top-24">
+            <nav class="flex flex-wrap lg:flex-col gap-1 pb-2 lg:pb-0" aria-label="Account sections">
+                <a href="#profile" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-md text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors">
+                    <i data-lucide="user-round" class="w-4 h-4"></i>
+                    Profile
+                </a>
+                <a href="#security" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-md text-navy-700 dark:text-cream-100/70 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 hover:text-navy-950 dark:hover:text-cream-100 transition-colors">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    Password
+                </a>
+                <a href="#avatar" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-md text-navy-700 dark:text-cream-100/70 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 hover:text-navy-950 dark:hover:text-cream-100 transition-colors">
+                    <i data-lucide="image" class="w-4 h-4"></i>
+                    Avatar
+                </a>
+                <a href="#session" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-md text-navy-700 dark:text-cream-100/70 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 hover:text-navy-950 dark:hover:text-cream-100 transition-colors">
+                    <i data-lucide="monitor-smartphone" class="w-4 h-4"></i>
+                    Session
+                </a>
+                <a href="#danger" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-md text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors">
+                    <i data-lucide="triangle-alert" class="w-4 h-4"></i>
+                    Danger zone
+                </a>
+            </nav>
+
+            <button id="account-logout" type="button"
+                    class="mt-4 w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                Log out
+            </button>
+        </aside>
+
+        <div class="space-y-6">
+            <!-- ==================================================== -->
+            <!-- Profile details                                       -->
+            <!-- ==================================================== -->
+            <section id="profile" class="scroll-mt-24 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs p-6 sm:p-7">
+                <div class="flex items-start gap-3 pb-5 mb-5 border-b border-navy-900/10 dark:border-navy-700">
+                    <div class="size-9 rounded-lg bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 flex items-center justify-center shrink-0">
+                        <i data-lucide="user-round-pen" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold tracking-tight text-navy-950 dark:text-cream-100">Profile details</h2>
+                        <p class="text-xs text-navy-700/70 dark:text-cream-100/60 mt-0.5">
+                            Update the name and email shown on your posts.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="profile-alert" class="hidden mb-5 p-3.5 rounded-lg bg-red-500/10 border border-red-500/20 text-xs sm:text-sm text-red-700 dark:text-red-300">
+                    <div class="flex items-start gap-2.5">
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5"></i>
+                        <div id="profile-alert-message" class="space-y-1"></div>
+                    </div>
+                </div>
+
+                <form id="profile-form" class="space-y-4" novalidate>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="account-username" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                                Username <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   id="account-username"
+                                   name="username"
+                                   required
+                                   minlength="1"
+                                   maxlength="50"
+                                   autocomplete="username"
+                                   class="w-full px-3.5 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+                            <p class="mt-1 text-[11px] text-navy-700/60 dark:text-cream-100/50">1–50 characters, used in your byline.</p>
+                        </div>
+
+                        <div>
+                            <label for="account-email" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                                Email Address <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email"
+                                   id="account-email"
+                                   name="email"
+                                   required
+                                   maxlength="120"
+                                   autocomplete="email"
+                                   class="w-full px-3.5 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 placeholder:text-navy-700/50 dark:placeholder:text-cream-100/40 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+                            <p class="mt-1 text-[11px] text-navy-700/60 dark:text-cream-100/50">Used together with your password to log in.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-3 pt-4 border-t border-navy-900/10 dark:border-navy-700">
+                        <p class="text-[11px] text-navy-700/60 dark:text-cream-100/50">
+                            Saving updates your profile and header immediately.
+                        </p>
+                        <button type="submit"
+                                id="profile-save-btn"
+                                class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs">
+                            <span id="profile-save-text">Save changes</span>
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ==================================================== -->
+            <!-- Password                                              -->
+            <!-- ==================================================== -->
+            <section id="security" class="scroll-mt-24 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs p-6 sm:p-7">
+                <div class="flex items-start gap-3 pb-5 mb-5 border-b border-navy-900/10 dark:border-navy-700">
+                    <div class="size-9 rounded-lg bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 flex items-center justify-center shrink-0">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-base font-bold tracking-tight text-navy-950 dark:text-cream-100">Password</h2>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25">
+                                Backend pending
+                            </span>
+                        </div>
+                        <p class="text-xs text-navy-700/70 dark:text-cream-100/60 mt-0.5">
+                            Change the password you use to sign in.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mb-5 p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs sm:text-sm text-amber-800 dark:text-amber-300">
+                    <div class="flex items-start gap-2.5">
+                        <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                        <p>
+                            The API does not expose a password-change endpoint yet, so this form cannot save
+                            changes. It is fully validated and ready to connect once the backend adds one.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="password-alert" class="hidden mb-5 p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs sm:text-sm text-amber-800 dark:text-amber-300">
+                    <div class="flex items-start gap-2.5">
+                        <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                        <div id="password-alert-message" class="space-y-1"></div>
+                    </div>
+                </div>
+
+                <form id="password-form" class="space-y-4" novalidate>
+                    <div>
+                        <label for="current-password" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                            Current password
+                        </label>
+                        <div class="relative">
+                            <input type="password"
+                                   id="current-password"
+                                   autocomplete="current-password"
+                                   class="w-full px-3.5 pr-16 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+                            <button type="button" data-toggle-password="current-password"
+                                    class="absolute inset-y-0 right-0 px-3 text-[11px] font-bold uppercase tracking-wider text-navy-700/60 dark:text-cream-100/50 hover:text-navy-950 dark:hover:text-cream-100 cursor-pointer">
+                                Show
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="new-password" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                                New password
+                            </label>
+                            <div class="relative">
+                                <input type="password"
+                                       id="new-password"
+                                       minlength="8"
+                                       autocomplete="new-password"
+                                       class="w-full px-3.5 pr-16 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+                                <button type="button" data-toggle-password="new-password"
+                                        class="absolute inset-y-0 right-0 px-3 text-[11px] font-bold uppercase tracking-wider text-navy-700/60 dark:text-cream-100/50 hover:text-navy-950 dark:hover:text-cream-100 cursor-pointer">
+                                    Show
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="confirm-new-password" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                                Confirm new password
+                            </label>
+                            <div class="relative">
+                                <input type="password"
+                                       id="confirm-new-password"
+                                       minlength="8"
+                                       autocomplete="new-password"
+                                       class="w-full px-3.5 pr-16 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 focus:outline-hidden focus:border-navy-900 dark:focus:border-cream-100 transition-colors">
+                                <button type="button" data-toggle-password="confirm-new-password"
+                                        class="absolute inset-y-0 right-0 px-3 text-[11px] font-bold uppercase tracking-wider text-navy-700/60 dark:text-cream-100/50 hover:text-navy-950 dark:hover:text-cream-100 cursor-pointer">
+                                    Show
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-navy-700/60 dark:text-cream-100/50">Strength</span>
+                            <span id="password-strength-label" class="text-[11px] font-semibold text-navy-700/60 dark:text-cream-100/50">—</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1.5" aria-hidden="true">
+                            <span class="password-strength-segment h-1.5 rounded-full bg-navy-900/10 dark:bg-navy-700"></span>
+                            <span class="password-strength-segment h-1.5 rounded-full bg-navy-900/10 dark:bg-navy-700"></span>
+                            <span class="password-strength-segment h-1.5 rounded-full bg-navy-900/10 dark:bg-navy-700"></span>
+                            <span class="password-strength-segment h-1.5 rounded-full bg-navy-900/10 dark:bg-navy-700"></span>
+                        </div>
+                        <p class="mt-1 text-[11px] text-navy-700/60 dark:text-cream-100/50">Use at least 8 characters.</p>
+                    </div>
+
+                    <div class="flex justify-end pt-4 border-t border-navy-900/10 dark:border-navy-700">
+                        <button type="submit"
+                                id="password-save-btn"
+                                class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer shadow-xs">
+                            <span id="password-save-text">Update password</span>
+                            <i data-lucide="key-round" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ==================================================== -->
+            <!-- Avatar                                                -->
+            <!-- ==================================================== -->
+            <section id="avatar" class="scroll-mt-24 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs p-6 sm:p-7">
+                <div class="flex items-start gap-3 pb-5 mb-5 border-b border-navy-900/10 dark:border-navy-700">
+                    <div class="size-9 rounded-lg bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 flex items-center justify-center shrink-0">
+                        <i data-lucide="image" class="w-4 h-4"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-base font-bold tracking-tight text-navy-950 dark:text-cream-100">Avatar</h2>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25">
+                                Backend pending
+                            </span>
+                        </div>
+                        <p class="text-xs text-navy-700/70 dark:text-cream-100/60 mt-0.5">
+                            Choose a picture shown next to your name.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-5 items-start">
+                    <img id="account-avatar-preview" src="{{ url_for('static', path='icons/writer.svg') }}" alt="Avatar preview"
+                         class="size-20 rounded-full border border-navy-900/10 dark:border-navy-700 object-cover shadow-xs shrink-0"
+                         width="80" height="80">
+
+                    <div class="flex-1 w-full">
+                        <label for="avatar-file"
+                               id="avatar-dropzone"
+                               class="flex flex-col items-center justify-center gap-1.5 w-full px-4 py-6 rounded-lg border-2 border-dashed border-navy-900/15 dark:border-navy-700 text-center cursor-pointer hover:border-navy-900/40 dark:hover:border-cream-100/40 hover:bg-navy-900/[0.02] dark:hover:bg-navy-700/20 transition-colors">
+                            <i data-lucide="upload" class="w-5 h-5 text-navy-700/70 dark:text-cream-100/60"></i>
+                            <span class="text-sm font-semibold text-navy-950 dark:text-cream-100">Click to choose an image</span>
+                            <span class="text-[11px] text-navy-700/60 dark:text-cream-100/50">or drag and drop it here · PNG, JPG, WebP or GIF · max 2 MB</span>
+                        </label>
+                        <input type="file" id="avatar-file" accept="image/png,image/jpeg,image/webp,image/gif" class="sr-only">
+
+                        <p id="avatar-file-name" class="mt-2 text-[11px] font-mono text-navy-700/60 dark:text-cream-100/50 truncate"></p>
+
+                        <div id="avatar-alert" class="hidden mt-3 p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs sm:text-sm text-amber-800 dark:text-amber-300">
+                            <div class="flex items-start gap-2.5">
+                                <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                                <div id="avatar-alert-message" class="space-y-1"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-2 mt-3">
+                            <button type="button"
+                                    id="avatar-reset-btn"
+                                    class="px-3.5 py-2 text-xs font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-700 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                                Reset preview
+                            </button>
+                            <button type="button"
+                                    id="avatar-save-btn"
+                                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-md bg-navy-900 text-cream-100 hover:bg-navy-700 dark:bg-cream-100 dark:text-navy-950 dark:hover:bg-cream-100/90 transition-colors cursor-pointer shadow-xs">
+                                <span>Save avatar</span>
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================================================== -->
+            <!-- Session                                               -->
+            <!-- ==================================================== -->
+            <section id="session" class="scroll-mt-24 rounded-lg bg-white dark:bg-navy-900 border border-navy-900/10 dark:border-navy-700 shadow-xs p-6 sm:p-7">
+                <div class="flex items-start gap-3 pb-5 mb-5 border-b border-navy-900/10 dark:border-navy-700">
+                    <div class="size-9 rounded-lg bg-navy-900 text-cream-100 dark:bg-cream-100 dark:text-navy-950 flex items-center justify-center shrink-0">
+                        <i data-lucide="monitor-smartphone" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold tracking-tight text-navy-950 dark:text-cream-100">Session</h2>
+                        <p class="text-xs text-navy-700/70 dark:text-cream-100/60 mt-0.5">
+                            This browser is signed in as <span id="session-username" class="font-semibold text-navy-950 dark:text-cream-100"></span>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <p class="text-xs text-navy-700/70 dark:text-cream-100/60 max-w-md leading-relaxed">
+                        Your session token is stored in this browser. Logging out removes it and takes you
+                        back to the home page. Other devices are not affected.
+                    </p>
+                    <button id="account-logout-2" type="button"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        Log out
+                    </button>
+                </div>
+            </section>
+
+            <!-- ==================================================== -->
+            <!-- Danger zone                                           -->
+            <!-- ==================================================== -->
+            <section id="danger" class="scroll-mt-24 rounded-lg bg-white dark:bg-navy-900 border border-red-500/25 shadow-xs p-6 sm:p-7">
+                <div class="flex items-start gap-3 pb-5 mb-5 border-b border-red-500/20">
+                    <div class="size-9 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 flex items-center justify-center shrink-0">
+                        <i data-lucide="triangle-alert" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold tracking-tight text-red-700 dark:text-red-300">Danger zone</h2>
+                        <p class="text-xs text-navy-700/70 dark:text-cream-100/60 mt-0.5">
+                            These actions are permanent and cannot be undone.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <p class="text-xs text-navy-700/70 dark:text-cream-100/60 max-w-md leading-relaxed">
+                        Deleting your account removes your profile and <strong class="text-navy-950 dark:text-cream-100">all posts you wrote</strong>.
+                        You will be logged out immediately.
+                    </p>
+                    <button id="account-delete-btn" type="button"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer shadow-xs">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        Delete account
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Delete account confirmation modal                            -->
+<!-- ============================================================ -->
+<div id="account-delete-modal"
+     class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-xs transition-opacity duration-200 opacity-0 pointer-events-none"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="account-delete-modal-title">
+    <div class="modal-card relative w-full max-w-md bg-white dark:bg-navy-900 rounded-xl border border-navy-900/10 dark:border-navy-700 shadow-2xl p-6 sm:p-7 text-center transform scale-95 transition-all duration-200">
+        <div class="w-12 h-12 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="user-x" class="w-6 h-6"></i>
+        </div>
+
+        <h3 id="account-delete-modal-title" class="text-xl font-bold tracking-tight text-navy-950 dark:text-cream-100 mb-1.5">
+            Delete your account?
+        </h3>
+        <p class="text-sm text-navy-700/80 dark:text-cream-100/75 mb-5">
+            This permanently deletes
+            <span id="account-delete-name" class="font-semibold text-navy-950 dark:text-cream-100"></span>
+            and every article you wrote. This action cannot be undone.
+        </p>
+
+        <div class="text-left mb-4">
+            <label for="account-delete-confirm-input" class="block text-xs font-bold uppercase tracking-wider text-navy-950 dark:text-cream-100 mb-1.5">
+                Type your username to confirm
+            </label>
+            <input type="text"
+                   id="account-delete-confirm-input"
+                   autocomplete="off"
+                   spellcheck="false"
+                   class="w-full px-3.5 py-2.5 text-sm rounded-md bg-[#faf6ed] dark:bg-navy-950/60 border border-navy-900/15 dark:border-navy-700 text-navy-950 dark:text-cream-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 transition-colors">
+        </div>
+
+        <div id="account-delete-error" class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-left text-red-700 dark:text-red-300">
+            <div class="flex items-start gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                <div id="account-delete-error-message"></div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3">
+            <button type="button"
+                    id="account-delete-cancel"
+                    class="px-4 py-2 text-sm font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-700 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
+                Cancel
+            </button>
+            <button type="button"
+                    id="account-delete-confirm"
+                    disabled
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-xs">
+                <span id="account-delete-confirm-text">Delete account</span>
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', path='js/account.js') }}"></script>
+{% endblock extra_scripts %}

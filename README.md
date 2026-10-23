@@ -79,12 +79,13 @@ uv run uvicorn fastapi_blog.main:app --reload
 - Login stores the JWT from `POST /api/users/token` in `localStorage` and sends
   it as a `Bearer` token on API requests. Logging out clears it.
 - Signed-in users get the **New Post** button and a user menu (My posts,
-  Profile, Log out).
+  Account settings, Log out).
 - Edit/delete buttons only appear on your own posts. Drafts are only listed for
   their author.
-- Account settings live on your profile page (`/users/{id}/posts`): **Edit
-  profile** changes username/email, **Delete account** removes the account and
-  its posts.
+- Account settings live on a dedicated page (`/account`): update your username,
+  email, or log out, and delete your account together with its posts.
+  Password changes and avatar uploads are UI-only for now because the API does
+  not expose endpoints for them yet.
 
 ## Database
 

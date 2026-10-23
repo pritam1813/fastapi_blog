@@ -118,6 +118,11 @@ async def register_page(request: Request):
     return template.TemplateResponse(request, "register.html", {"title": "Register"})
 
 
+@app.get("/account", include_in_schema=False, name="account")
+async def account_page(request: Request):
+    return template.TemplateResponse(request, "account.html", {"title": "Account"})
+
+
 # APIs
 
 

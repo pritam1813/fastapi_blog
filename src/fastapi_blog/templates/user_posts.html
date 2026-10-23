@@ -32,25 +32,15 @@
             <h1 id="profile-username" class="profile-username text-2xl sm:text-3xl font-extrabold tracking-tight text-navy-950 dark:text-cream-100 leading-tight">
                 {{ user.username }}
             </h1>
-            <p id="profile-email"
-               class="profile-email text-xs sm:text-sm text-navy-700/80 dark:text-cream-100/75 mt-1 font-mono"
-               data-owner-id="{{ user.id }}" data-owner-display="block" style="display:none"></p>
 
             <!-- Owner-only account actions -->
-            <div class="flex items-center gap-2 mt-3 flex-wrap"
-                 data-owner-id="{{ user.id }}" data-owner-display="flex" style="display:none">
-                <button id="edit-profile-btn" type="button"
-                        data-user-id="{{ user.id }}"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors cursor-pointer">
-                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                    Edit profile
-                </button>
-                <button id="delete-account-btn" type="button"
-                        data-user-id="{{ user.id }}"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    Delete account
-                </button>
+            <div class="mt-3"
+                 data-owner-id="{{ user.id }}" data-owner-display="block" style="display:none">
+                <a href="/account"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-navy-900/15 dark:border-navy-700 text-navy-900 dark:text-cream-100 hover:bg-navy-900/5 dark:hover:bg-navy-700/50 transition-colors">
+                    <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                    Manage account
+                </a>
             </div>
         </div>
     </div>
