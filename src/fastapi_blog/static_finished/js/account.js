@@ -2,14 +2,15 @@
  * Dedicated account page (/account).
  *
  * Backend support today:
- *   - GET    /api/users/me          -> profile
- *   - PATCH  /api/users/{id}        -> username, email, image_file (filename only)
- *   - DELETE /api/users/{id}        -> delete account (posts cascade)
- *   - GET    /api/users/{id}/posts  -> post/draft counts
+ *   - GET    /api/users/me           -> profile
+ *   - PATCH  /api/users/{id}         -> username, email
+ *   - PATCH  /api/users/{id}/picture -> upload avatar
+ *   - DELETE /api/users/{id}/picture -> remove avatar
+ *   - DELETE /api/users/{id}         -> delete account (posts cascade)
+ *   - GET    /api/users/{id}/posts   -> post/draft counts
  *
  * Not available in the API yet (UI kept, deliberately not faked):
  *   - password change
- *   - avatar upload
  */
 document.addEventListener("DOMContentLoaded", () => {
     const page = document.getElementById("account-page");
@@ -17,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { openModal, closeModal, extractApiErrors, toast } = window.UI || {};
     const DEFAULT_AVATAR = "/static/icons/writer.svg";
+    const MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5 MB
 
     // ------------------------------------------------------------
     // State / loading elements
@@ -28,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let currentUser = null;
     let avatarObjectUrl = null;
+    let selectedAvatarFile = null;
 
     // ------------------------------------------------------------
     // Header / identity
@@ -74,6 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const avatarAlertMessage = document.getElementById("avatar-alert-message");
     const avatarResetButton = document.getElementById("avatar-reset-btn");
     const avatarSaveButton = document.getElementById("avatar-save-btn");
+    const avatarSaveText = document.getElementById("avatar-save-text");
+    const avatarDeleteButton = document.getElementById("avatar-delete-btn");
+    const avatarDeleteText = document.getElementById("avatar-delete-text");
 
     // ------------------------------------------------------------
     // Session / danger zone
@@ -154,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (usernameInput) usernameInput.value = user.username || "";
         if (emailInput) emailInput.value = user.email || "";
         setAvatar(user.image_path || DEFAULT_AVATAR);
+        updateAvatarUIState();
     }
 
     function setAvatar(src) {
@@ -393,57 +400,98 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ------------------------------------------------------------
-    // Avatar (frontend preview only; no upload endpoint yet)
+    // Avatar (upload & delete via /api/users/{id}/picture)
     // ------------------------------------------------------------
+    function isImageFile(file) {
+        if (!file) return false;
+        if (file.type && file.type.startsWith("image/")) return true;
+        const name = (file.name || "").toLowerCase();
+        return /\.(jpe?g|png|webp|gif|svg|avif|bmp|ico|jfif)$/i.test(name);
+    }
+
+    function updateAvatarUIState() {
+        const hasCustomAvatar = Boolean(currentUser && currentUser.image_file);
+        if (avatarDeleteButton) {
+            avatarDeleteButton.classList.toggle("hidden", !hasCustomAvatar);
+        }
+
+        const hasSelectedFile = Boolean(selectedAvatarFile);
+        if (avatarResetButton) {
+            avatarResetButton.classList.toggle("hidden", !hasSelectedFile);
+        }
+        if (avatarSaveButton) {
+            avatarSaveButton.disabled = !hasSelectedFile;
+            if (hasSelectedFile) {
+                avatarSaveButton.removeAttribute("disabled");
+                avatarSaveButton.classList.remove("opacity-50", "cursor-not-allowed");
+            } else {
+                avatarSaveButton.setAttribute("disabled", "true");
+                avatarSaveButton.classList.add("opacity-50", "cursor-not-allowed");
+            }
+        }
+    }
+
     function clearAvatarPreview() {
         if (avatarObjectUrl) {
             URL.revokeObjectURL(avatarObjectUrl);
             avatarObjectUrl = null;
         }
+        selectedAvatarFile = null;
         if (avatarPreview) {
             avatarPreview.src = currentUser?.image_path || DEFAULT_AVATAR;
         }
         if (avatarInput) avatarInput.value = "";
         if (avatarFileName) avatarFileName.textContent = "";
+        updateAvatarUIState();
     }
 
     function handleAvatarFile(file) {
         clearAlert(avatarAlert, avatarAlertMessage);
 
         if (!file) return;
-        if (!file.type.startsWith("image/")) {
+        if (!isImageFile(file)) {
             clearAvatarPreview();
-            showAlert(avatarAlert, avatarAlertMessage, "Please choose an image file.");
+            showAlert(avatarAlert, avatarAlertMessage, "Please choose an image file (PNG, JPG, WebP, GIF, etc.).");
             return;
         }
-        if (file.size > 2 * 1024 * 1024) {
+        if (file.size > MAX_AVATAR_SIZE) {
             clearAvatarPreview();
-            showAlert(avatarAlert, avatarAlertMessage, "The image must be 2 MB or smaller.");
+            showAlert(avatarAlert, avatarAlertMessage, "The image must be 5 MB or smaller.");
             return;
         }
+
+        selectedAvatarFile = file;
 
         if (avatarObjectUrl) URL.revokeObjectURL(avatarObjectUrl);
         avatarObjectUrl = URL.createObjectURL(file);
 
         if (avatarPreview) avatarPreview.src = avatarObjectUrl;
         if (avatarFileName) {
-            const sizeKb = Math.round(file.size / 1024);
-            avatarFileName.textContent = `${file.name} · ${sizeKb} KB`;
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+            const sizeText = file.size >= 1024 * 1024 ? `${sizeMb} MB` : `${Math.round(file.size / 1024)} KB`;
+            avatarFileName.textContent = `${file.name} · ${sizeText}`;
         }
         clearAlert(avatarAlert, avatarAlertMessage);
+        updateAvatarUIState();
     }
 
     if (avatarInput) {
-        avatarInput.addEventListener("change", () => {
-            handleAvatarFile(avatarInput.files && avatarInput.files[0]);
-        });
+        const onAvatarChange = () => {
+            const file = avatarInput.files && avatarInput.files[0];
+            if (file) handleAvatarFile(file);
+        };
+        avatarInput.addEventListener("change", onAvatarChange);
+        avatarInput.addEventListener("input", onAvatarChange);
     }
 
     if (avatarDropzone) {
+        const activeClasses = ["border-navy-900", "dark:border-cream-100", "bg-navy-900/5", "dark:bg-navy-700/30"];
+
         ["dragenter", "dragover"].forEach((eventName) => {
             avatarDropzone.addEventListener(eventName, (event) => {
                 event.preventDefault();
                 event.stopPropagation();
+                avatarDropzone.classList.add(...activeClasses);
             });
         });
 
@@ -451,12 +499,22 @@ document.addEventListener("DOMContentLoaded", () => {
             avatarDropzone.addEventListener(eventName, (event) => {
                 event.preventDefault();
                 event.stopPropagation();
+                avatarDropzone.classList.remove(...activeClasses);
             });
         });
 
         avatarDropzone.addEventListener("drop", (event) => {
             const file = event.dataTransfer?.files?.[0];
-            if (file) handleAvatarFile(file);
+            if (file) {
+                try {
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    if (avatarInput) avatarInput.files = dt.files;
+                } catch {
+                    // Ignore DataTransfer construction fallback
+                }
+                handleAvatarFile(file);
+            }
         });
     }
 
@@ -468,18 +526,123 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (avatarSaveButton) {
-        avatarSaveButton.addEventListener("click", () => {
-            if (!avatarObjectUrl) {
+        avatarSaveButton.addEventListener("click", async () => {
+            clearAlert(avatarAlert, avatarAlertMessage);
+
+            if (!selectedAvatarFile) {
                 showAlert(avatarAlert, avatarAlertMessage, "Choose an image first.");
                 return;
             }
+            if (!currentUser) return;
 
-            showAlert(
-                avatarAlert,
-                avatarAlertMessage,
-                "Nothing was saved: the API does not expose an avatar-upload endpoint yet. " +
-                    "Your current avatar is unchanged."
-            );
+            avatarSaveButton.disabled = true;
+            if (avatarSaveText) avatarSaveText.textContent = "Uploading...";
+            if (avatarResetButton) avatarResetButton.disabled = true;
+            if (avatarDeleteButton) avatarDeleteButton.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append("file", selectedAvatarFile);
+
+                const response = await window.Auth.apiFetch(
+                    `/api/users/${currentUser.id}/picture`,
+                    {
+                        method: "PATCH",
+                        body: formData
+                    }
+                );
+
+                if (handleUnauthorizedIfNeeded(response.status)) return;
+
+                if (!response.ok) {
+                    const errPayload = await readErrorPayload(response);
+                    showAlert(
+                        avatarAlert,
+                        avatarAlertMessage,
+                        errorMessages(errPayload, response.status)
+                    );
+                    return;
+                }
+
+                const updatedUser = await response.json();
+                currentUser = updatedUser;
+                window.Auth.setUser(updatedUser);
+
+                clearAvatarPreview();
+                setIdentity(updatedUser);
+                clearAlert(avatarAlert, avatarAlertMessage);
+                if (toast) toast("Avatar updated successfully.");
+            } catch (error) {
+                showAlert(
+                    avatarAlert,
+                    avatarAlertMessage,
+                    error.message || "Could not upload avatar."
+                );
+            } finally {
+                avatarSaveButton.disabled = !selectedAvatarFile;
+                if (avatarSaveText) avatarSaveText.textContent = "Save avatar";
+                if (avatarResetButton) avatarResetButton.disabled = false;
+                if (avatarDeleteButton) avatarDeleteButton.disabled = false;
+                if (window.lucide) window.lucide.createIcons();
+            }
+        });
+    }
+
+    if (avatarDeleteButton) {
+        avatarDeleteButton.addEventListener("click", async () => {
+            clearAlert(avatarAlert, avatarAlertMessage);
+
+            if (!currentUser || !currentUser.image_file) return;
+
+            if (!window.confirm("Are you sure you want to remove your avatar?")) {
+                return;
+            }
+
+            avatarDeleteButton.disabled = true;
+            if (avatarDeleteText) avatarDeleteText.textContent = "Removing...";
+            if (avatarSaveButton) avatarSaveButton.disabled = true;
+            if (avatarResetButton) avatarResetButton.disabled = true;
+
+            try {
+                const response = await window.Auth.apiFetch(
+                    `/api/users/${currentUser.id}/picture`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                if (handleUnauthorizedIfNeeded(response.status)) return;
+
+                if (!response.ok) {
+                    const errPayload = await readErrorPayload(response);
+                    showAlert(
+                        avatarAlert,
+                        avatarAlertMessage,
+                        errorMessages(errPayload, response.status)
+                    );
+                    return;
+                }
+
+                const updatedUser = await response.json();
+                currentUser = updatedUser;
+                window.Auth.setUser(updatedUser);
+
+                clearAvatarPreview();
+                setIdentity(updatedUser);
+                clearAlert(avatarAlert, avatarAlertMessage);
+                if (toast) toast("Avatar removed.");
+            } catch (error) {
+                showAlert(
+                    avatarAlert,
+                    avatarAlertMessage,
+                    error.message || "Could not remove avatar."
+                );
+            } finally {
+                avatarDeleteButton.disabled = false;
+                if (avatarDeleteText) avatarDeleteText.textContent = "Remove avatar";
+                updateAvatarUIState();
+                if (window.lucide) window.lucide.createIcons();
+            }
         });
     }
 
